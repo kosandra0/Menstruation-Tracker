@@ -33,17 +33,17 @@ A private, local-first menstrual health tracker. The Windows desktop application
 
 The application is local-first: no account, cloud sync, advertising, analytics, telemetry, or automatic upload is required.
 
-- On Windows, health records are stored in **records.vault** and protected with Windows DPAPI. If DPAPI protection is unavailable, the app refuses to save rather than silently falling back to plaintext.
+- On Windows, health records are stored in [`records.vault`](docs/PRIVACY_SECURITY.md#health-records) and protected with Windows DPAPI. If DPAPI protection is unavailable, the app refuses to save rather than silently falling back to plaintext.
 - DPAPI is user-bound protection, not a defence against malware running as the same signed-in Windows user.
 - Backup and export files (JSON, Markdown, text, and CSV) are readable and **not encrypted**. Keep them in a private location and do not commit them to Git.
 - Appearance preferences and background-image data are stored separately in the WebView2 profile.
 - The only documented outward action is an explicit user click that opens one of the fixed external links on the About screen.
 
-The current vault is DPAPI-protected; it is **not SQLCipher**. Encrypted backup files, SQLCipher, and a full installer/signing pipeline are not shipped yet. See **docs/PRIVACY_SECURITY.md** before handling real records.
+The current vault is DPAPI-protected; it is **not SQLCipher**. Encrypted backup files, SQLCipher, and a full installer/signing pipeline are not shipped yet. Read [Privacy & Security](docs/PRIVACY_SECURITY.md) before handling real records.
 
 ## Quick start
 
-Use Node.js 24 and the committed npm lockfile:
+Use Node.js 24 and the committed [`package-lock.json`](package-lock.json):
 
     npm ci
     npm run check                 # typecheck, lint, tests, version consistency
@@ -55,37 +55,43 @@ On Windows, with Rust stable, the MSVC C++ build tools, Windows SDK, and WebView
     cargo test --lib
     cargo build --release
 
-The Rust/Tauri build embeds the frontend from the repository-root **dist/** directory. Build the frontend before running Cargo commands. Full prerequisites, data locations, and development commands are in **BUILD-WINDOWS.md**.
+The Rust/Tauri build embeds the frontend from the repository-root [`dist/`](dist/) directory. Build the frontend before running Cargo commands. Full prerequisites, data locations, and development commands are in the [Windows build guide](BUILD-WINDOWS.md).
 
 ## Repository map
 
 | Path | Responsibility |
 |---|---|
-| **src/** | Tiny root Vite entry shims; the actual UI lives under apps/desktop/src/. |
-| **apps/desktop/src/** | React application: routes, feature screens, components, stores, services, and styles. |
-| **apps/desktop/src-tauri/** | Tauri configuration and Rust native layer: commands, vault storage, security, shell, and Windows platform code. |
-| **apps/mobile/** | Android/iOS placeholder; no mobile application is implemented yet. |
-| **apps/windows-preview/** | Retired Go/Win32 preview retained for historical reference, not the production app. |
-| **packages/domain/** | Portable cycle rules, calculations, records, and analytics. Keep cycle logic here. |
-| **packages/design-tokens/** | Themes, colour maths, palette generation, and design tokens. |
-| **packages/shared-types/**, **packages/config/**, **packages/ui/** | Shared contracts and workspace configuration/UI package boundaries. |
-| **services/go-worker/** | Optional Go JSON-lines worker scaffold; it is not integrated into the desktop app yet. |
-| **database/** | Planned database design and migration notes; SQLCipher is not implemented. |
-| **docs/** | Architecture, privacy, database, UI, development, and roadmap documentation. |
+| [`src/`](src/) | Tiny root Vite entry shims; the actual UI lives under [`apps/desktop/src/`](apps/desktop/src/). |
+| [`apps/desktop/src/`](apps/desktop/src/) | React application: routes, feature screens, components, stores, services, and styles. |
+| [`apps/desktop/src-tauri/`](apps/desktop/src-tauri/) | Tauri configuration and Rust native layer: commands, vault storage, security, shell, and Windows platform code. |
+| [`apps/mobile/`](apps/mobile/) | Android/iOS placeholder; no mobile application is implemented yet. |
+| [`apps/windows-preview/`](apps/windows-preview/) | Retired Go/Win32 preview retained for historical reference, not the production app. |
+| [`packages/domain/`](packages/domain/) | Portable cycle rules, calculations, records, and analytics. Keep cycle logic here. |
+| [`packages/design-tokens/`](packages/design-tokens/) | Themes, colour maths, palette generation, and design tokens. |
+| [`packages/shared-types/`](packages/shared-types/), [`packages/config/`](packages/config/), [`packages/ui/`](packages/ui/) | Shared contracts and workspace configuration/UI package boundaries. |
+| [`services/go-worker/`](services/go-worker/) | Optional Go JSON-lines worker scaffold; it is not integrated into the desktop app yet. |
+| [`database/`](database/) | Planned database design and migration notes; SQLCipher is not implemented. |
+| [`docs/`](docs/) | Architecture, privacy, database, UI, development, and roadmap documentation. |
 
-The root Vite configuration is intentional: **src/main.tsx** is a small shim that imports the real desktop entry point. Do not move or delete these shims without updating Vite and Tauri configuration.
+The root Vite configuration is intentional: [`src/main.tsx`](src/main.tsx) is a small shim that imports the real desktop entry point. Do not move or delete these shims without updating Vite and Tauri configuration.
 
 ## Documentation
 
-- **docs/README.md**: documentation index.
-- **docs/ARCHITECTURE.md**: architecture and dependency boundaries.
-- **docs/PRIVACY_SECURITY.md**: implemented storage protection, limitations, and future work.
-- **BUILD-WINDOWS.md**: Windows build guide.
-- **CHANGELOG.md**: release history.
-- **docs/DEVELOPMENT_ROADMAP.md**: planned work.
-- **docs/DATABASE_DESIGN.md**: database design.
-- **docs/GO_SERVICE_PROTOCOL.md**: Go worker protocol.
-- **CONTRIBUTING.md**: contribution and verification rules.
+Start with the [documentation index](docs/README.md), or open an individual guide:
+
+- [Documentation index](docs/README.md)
+- [Architecture and dependency boundaries](docs/ARCHITECTURE.md)
+- [Privacy & Security](docs/PRIVACY_SECURITY.md)
+- [Windows build guide](BUILD-WINDOWS.md)
+- [Changelog and release history](CHANGELOG.md)
+- [Development roadmap](docs/DEVELOPMENT_ROADMAP.md)
+- [Database design](docs/DATABASE_DESIGN.md)
+- [Go worker protocol](docs/GO_SERVICE_PROTOCOL.md)
+- [UI design system](docs/UI_DESIGN_SYSTEM.md)
+- [Mobile roadmap](docs/MOBILE_ROADMAP.md)
+- [Foundation and implementation status](docs/FOUNDATION.md)
+- [Contribution and verification guide](CONTRIBUTING.md)
+- [License](LICENSE)
 
 ## Current boundaries and planned work
 
@@ -98,4 +104,4 @@ These boundaries are deliberately stated so the repository does not imply that p
 
 ## License
 
-Apache License 2.0. See **LICENSE**.
+[Apache License 2.0](LICENSE).
