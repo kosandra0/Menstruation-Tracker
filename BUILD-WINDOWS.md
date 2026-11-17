@@ -1,48 +1,60 @@
-# Windows build guide (v0.3.0)
+# Windows build guide (v0.3.1)
 
-v0.2.0 and v0.3.0 ship the real **Tauri 2 + React + Rust** desktop application. The Go/Win32 preview from v0.1.x is retired
-(its source is kept in `apps/windows-preview/` for history only).
+The current application is the **Tauri 2 + React + TypeScript + Rust** desktop application. The Go/Win32 preview from v0.1.x is retired; its source remains under **apps/windows-preview/** for historical reference only.
 
-## Prerequisites (verified on the development machine, Windows 10 22H2)
+## Prerequisites
+
+The following toolchain was used on the development machine (Windows 10 22H2):
 
 | Tool | Version used | Notes |
 |---|---|---|
-| Node.js / npm | 24.15.0 / 11.12.1 | `npm install` at the repository root |
-| Rust (MSVC host) | 1.99.1 | `rustup` stable, target `x86_64-pc-windows-msvc` |
-| Visual Studio Build Tools | 2022 (C++ workload + Windows SDK) | provides the MSVC linker |
-| WebView2 Runtime | 157.0.4341.46 | already present on Windows 10/11 with Edge |
+| Node.js / npm | 24.15.0 / 11.12.1 | Run npm commands from the repository root. |
+| Rust | 1.99.1 (stable, MSVC host) | Include target **x86_64-pc-windows-msvc**. |
+| Visual Studio Build Tools | 2022, C++ workload + Windows SDK | Provides the MSVC linker and Windows build tools. |
+| WebView2 Runtime | 157.0.4341.46 | Normally present on Windows 10/11 with Edge. |
 
-Go is only needed for `services/go-worker` (not used by the desktop app yet) and was not installed on the build machine.
+Go is only needed for **services/go-worker/**; it is not used by the desktop app yet.
 
-## Build and run
+## Install and verify the frontend
 
-```powershell
-npm install
-npm run check                 # typecheck + lint + vitest + version check
-npm run build                 # frontend -> dist/index.html (single file)
-cd apps/desktop/src-tauri
-cargo test --lib              # Rust unit tests (includes real DPAPI tests)
-cargo build --release         # -> target\release\menstruation-tracker.exe (embeds ../../../dist)
-```
+Run from the repository root:
 
-`custom-protocol` is a default Cargo feature, so a plain `cargo build` embeds `dist/` instead of loading the dev server.
-Run `npm run build` again whenever the frontend changes, then rebuild (or touch `src-tauri/src/lib.rs`) so Cargo re-embeds it.
+    npm ci
+    npm run check
+    npm run build
 
-For development with hot reload use the Tauri CLI: `npx --prefix apps/desktop tauri dev --config apps/desktop/src-tauri/tauri.conf.json`.
+- **npm ci** installs the exact dependency tree described by **package-lock.json**.
+- **npm run check** runs TypeScript checks, ESLint, Vitest, and version consistency validation.
+- **npm run build** writes the single-file frontend bundle to **dist/index.html**.
+
+## Build and test the native application
+
+On Windows, after the frontend build has completed:
+
+    cd apps/desktop/src-tauri
+    cargo test --lib
+    cargo build --release
+
+The Tauri configuration points **frontendDist** at the repository-root **dist/** folder. The frontend bundle must exist before Cargo compiles the Tauri context; the Rust CI job performs the frontend build on its own runner for this reason.
+
+The release executable is written to:
+
+    apps/desktop/src-tauri/target/release/menstruation-tracker.exe
+
+For development with hot reload, run this from the repository root:
+
+    npx --prefix apps/desktop tauri dev --config apps/desktop/src-tauri/tauri.conf.json
 
 ## Data locations
 
-- Records: `%APPDATA%\app.menstruationtracker.desktop\records.vault` (DPAPI-encrypted).
-- Appearance preferences and the background image: the WebView2 profile under `%LOCALAPPDATA%\app.menstruationtracker.desktop\`.
-- Start with Windows (optional, user-controlled): `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`.
+- Records: **%APPDATA%/app.menstruationtracker.desktop/records.vault** (Windows DPAPI-protected).
+- Appearance preferences and background image: the WebView2 profile under **%LOCALAPPDATA%/app.menstruationtracker.desktop/**.
+- Start with Windows (optional and user-controlled): **HKCU/Software/Microsoft/Windows/CurrentVersion/Run**.
 
-## Installer
+## Installer and signing status
 
-`bundle.active` is still `false`: the NSIS installer was not built or verified in v0.2.0 or v0.3.0, and the executable is not code-signed.
-Windows SmartScreen may warn about an unknown publisher.
+**bundle.active** remains **false**. The NSIS installer has not been built and verified as part of this release, and the Windows executable is not code-signed. Windows SmartScreen may therefore display an unknown-publisher warning.
 
 ## Automated UI checks (development only)
 
-Debug builds honour the environment variable `MT_WEBVIEW_ARGS` (compiled out of release builds) so test tooling can pass the
-same browser arguments to every webview, for example `--remote-debugging-port=9333`. The main window needs the same value via
-`additionalBrowserArgs` (e.g. through the `TAURI_CONFIG` build-time override). Never ship a build made that way.
+Debug builds honour **MT_WEBVIEW_ARGS** so local test tooling can pass browser arguments to the webview. This is compiled out of release builds. Never ship a binary built with debugging arguments enabled.

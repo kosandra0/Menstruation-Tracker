@@ -1,26 +1,52 @@
-# Foundation status (v0.1.1)
+# Foundation and implementation status
 
-> **v0.2.0 update:** the "Not implemented" list below is partly outdated. As of v0.2.0 the Tauri application is built and run on Windows; real tracking, estimates, reminders, a DPAPI-encrypted record vault, tray, themes and customisation exist. Still not implemented: SQLCipher, encrypted backup, Go worker integration, installer/signing, mobile apps. See CHANGELOG.md for the authoritative state.
+This document began as a record of the early v0.1.1 Windows preview. The application has since been rebuilt. The old v0.1.1 descriptions below are historical context, not a description of the current product.
 
-## Built in this release
-- Standalone Windows x64 GUI preview: `Menstruation Tracker.exe`, compiled as a PE32+ Windows GUI executable using Go 1.23.2, with no third-party Go dependencies.
-- Native Win32/GDI shell with custom title bar, seven navigation sections, six theme palettes, light/dark switching, and illustrative placeholder screens.
-- Windows build script: `scripts/build-windows-preview.ps1`.
-- Updated version metadata and changelog to v0.1.1.
+## Current project baseline
 
-## Important artifact boundary
-The supplied React + TypeScript + Tauri 2 + Rust project remains the intended production desktop application. The included EXE is a separate native Windows foundation preview so a real Windows GUI executable can be delivered from this Linux build environment. It does not embed or run the React/Tauri frontend and is not a Tauri/MSI/NSIS production installer.
+The tracked application version is **0.3.1**. Version consistency is checked by **npm run check:version**.
 
-The EXE was cross-compiled here and verified as a PE32+ x86-64 Windows GUI binary. It was not launched on a Windows host in this environment.
+The active product is a Windows desktop application built with:
 
-## Production stack still requiring a Windows build
-- React + TypeScript + Vite frontend under `apps/desktop/`.
-- Tauri 2 and Rust native shell under `apps/desktop/src-tauri/`.
-- Windows packaging requires Rust stable with the MSVC target, Microsoft C++ Build Tools / Windows SDK, WebView2 support, Node dependencies, Tauri CLI and generated app icons.
-- The Tauri bundler remains disabled until those prerequisites are available and its configuration is verified on Windows.
+- React and TypeScript for the interface.
+- Vite for the frontend build, producing a single-file bundle in the repository-root **dist/** directory.
+- Tauri 2 and Rust for the desktop shell, native commands, Windows integration, and protected record storage.
+- Portable TypeScript packages for cycle calculations, shared types, configuration, and design tokens.
 
-## Not implemented in either preview shell
-Encrypted health-data database, real period logging, persistent daily logs, medical algorithms, cycle prediction, scheduled notifications, cloud backup, partner sharing and mobile apps. These must be developed in controlled phases and verified before release.
+The root **src/main.tsx** and **src/App.tsx** files are intentionally thin Vite entry shims. The real application code lives under **apps/desktop/src/**.
 
-## Verification limitations for this build
-The container is Linux and has no Rust toolchain or Windows MSVC linker. The npm package registry was unreachable during dependency installation, so the React frontend build and frontend tests could not be rerun here. The Go Windows preview cross-compilation and Go worker tests are checked separately in the release verification report.
+## Implemented
+
+- Period history, daily logs, journal, reminders, and notification history.
+- Cycle estimates with a range, basis, and uncertainty note.
+- Insights, charts, trends, and CSV export.
+- Theme, palette, logo, font, clock, title-bar, and dashboard customisation.
+- Tauri system tray, single-instance behaviour, window lifecycle, and optional Start with Windows.
+- Windows DPAPI-protected record vault with no plaintext fallback.
+- User-initiated backup and restore in readable, unencrypted formats.
+
+See **CHANGELOG.md** for the complete release history and **ARCHITECTURE.md** for the code boundaries.
+
+## Not shipped yet
+
+- SQLCipher-backed database storage.
+- Encrypted backup archives.
+- Android and iOS applications.
+- Go worker integration into normal desktop operation.
+- Verified NSIS installer and code signing.
+
+The Go worker under **services/go-worker/** is a separate scaffold. The older Go/Win32 UI preview under **apps/windows-preview/** is retained for historical reference and is not the production application.
+
+## Historical v0.1.1 preview
+
+The first Windows deliverable was a dependency-free Go/Win32 preview shell. It provided a native window and illustrative placeholder screens, but it was not the React/Tauri production application and did not implement persistent menstrual records or cycle calculations.
+
+The production desktop architecture was introduced in v0.2.0. Later versions added notification popups, backup/restore, additional analytics, personalisation, and notification history. The current state is described by the release changelog, not by the early preview notes.
+
+## Useful references
+
+- [Project overview](../README.md)
+- [Windows build guide](../BUILD-WINDOWS.md)
+- [Privacy & Security](PRIVACY_SECURITY.md)
+- [Architecture](ARCHITECTURE.md)
+- [Development roadmap](DEVELOPMENT_ROADMAP.md)

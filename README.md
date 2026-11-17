@@ -1,46 +1,101 @@
-# Menstruation Tracker - v0.3.0 (Windows desktop)
+# Menstruation Tracker
 
-A private, local-first menstrual health tracker. Windows desktop first (Tauri 2 + React + Rust); an **Android app is coming later** (not started).
+**Current version: 0.3.1 · Windows desktop · Tauri 2 + React + TypeScript + Rust**
 
-> A tracking and personal-recording tool, not a medical device. Estimates are never certainties and must not be used as contraception.
+A private, local-first menstrual health tracker. The Windows desktop application is the active product; Android and iOS are future work and have not started.
 
-## What works in v0.3.0
+> This is a personal tracking and recording tool, not a medical device. Cycle estimates are uncertain and must never be used as contraception or as a diagnosis.
 
-- **Record**: periods (start/end, edit, delete), daily logs (flow, mood, energy, pain, sleep, symptoms, water, exercise, medication, notes), a private journal, reminders.
-- **Understand**: next-period *estimate with a range and an uncertainty note* (median of your last six cycles), cycle and period history, variability, symptom frequency, mood/energy/pain/sleep charts, logging streaks, cycle-length trend, averages by day of cycle, symptoms across the cycle, mood by weekday, sleep-and-mood comparison, monthly summaries, CSV export. Everything shows how it is calculated and how many days it is based on.
-- **Make it yours**: ten themes (light/dark/system), custom colours with contrast checks, saved/imported/exported palettes, fonts and text sizing, a background image with adjustments and themes generated from the image, six title-bar button styles, three app logos, optional mood-adaptive accent, configurable mood bars, customisable dashboard, reduced-motion support.
-- **Desktop behaviour**: start-up and exit screens in your logo and theme, system tray with a themed right-click menu, close/minimise to tray, optional Start with Windows, single instance.
-- **Notifications** (v0.3.0): reminders and gentle "remember to record" prompts shown as popups drawn by the app in your theme (not Windows toasts), a bell with history in the title bar, per-kind switches, previews and popup styling.
-- **Backup and restore** (v0.3.0): everything (records, name, settings) as `.json`, `.md` or `.txt`; merge or replace; a welcome-back message after restoring or after a few days away.
-- **More to personalise** (v0.3.0): 20 themes, 13 logos, your name, interface roundness, analog or digital clock (12/24 h, your region and time zone).
-- **Privacy**: no account, no analytics, no network use. Records are stored in a Windows-DPAPI-encrypted file (`records.vault`); if encryption is unavailable the app refuses to save.
+## What is included in v0.3.1
 
-## Not done yet (honest list)
+### Record
+- Period starts and ends, with history editing and deletion.
+- Daily logs for flow, mood, energy, pain, sleep, symptoms, water, exercise, medication, stress, temperature, weight, cervical fluid, and notes.
+- Private journal, configurable reminders, and notification history.
 
-SQLCipher storage, *encrypted* backup/restore (backups are readable files), Go worker integration, NSIS installer and code signing, Android and iOS apps. DPAPI does not protect against malware running as you. See `CHANGELOG.md` and `docs/`.
+### Understand
+- Next-period estimate with a range, uncertainty note, and a basis drawn from up to the last six cycles.
+- Cycle and period history, variability, symptom frequency, logging streaks, trends, and monthly summaries.
+- Charts and comparisons for mood, energy, pain, sleep, symptoms, and other logged values.
+- CSV export and data-quality indicators.
+
+### Personalise
+- Twenty themes, thirteen logos, custom colours with contrast checks, saved/imported/exported palettes, fonts, text sizing, and background-image themes.
+- Customisable dashboard, interface and window roundness, title-bar button styles, mood bars, and reduced-motion support.
+- Analog or digital clock with 12/24-hour display and time-zone options.
+
+### Desktop experience
+- Tauri 2 native Windows shell with a custom title bar, system tray, single-instance behaviour, and optional Start with Windows.
+- Close/minimise to tray options and themed start-up/exit screens.
+- In-app reminder popups, quiet hours, notification settings, and history.
+
+## Privacy and data safety
+
+The application is local-first: no account, cloud sync, advertising, analytics, telemetry, or automatic upload is required.
+
+- On Windows, health records are stored in **records.vault** and protected with Windows DPAPI. If DPAPI protection is unavailable, the app refuses to save rather than silently falling back to plaintext.
+- DPAPI is user-bound protection, not a defence against malware running as the same signed-in Windows user.
+- Backup and export files (JSON, Markdown, text, and CSV) are readable and **not encrypted**. Keep them in a private location and do not commit them to Git.
+- Appearance preferences and background-image data are stored separately in the WebView2 profile.
+- The only documented outward action is an explicit user click that opens one of the fixed external links on the About screen.
+
+The current vault is DPAPI-protected; it is **not SQLCipher**. Encrypted backup files, SQLCipher, and a full installer/signing pipeline are not shipped yet. See **docs/PRIVACY_SECURITY.md** before handling real records.
 
 ## Quick start
 
-```sh
-npm install
-npm run check               # typecheck + lint + tests + version consistency
-npm run build               # frontend -> dist/index.html
-cd apps/desktop/src-tauri
-cargo test --lib            # Rust tests (include real DPAPI tests)
-cargo build --release       # -> target/release/menstruation-tracker.exe
-```
+Use Node.js 24 and the committed npm lockfile:
 
-Details, prerequisites and data locations: [BUILD-WINDOWS.md](BUILD-WINDOWS.md).
+    npm ci
+    npm run check                 # typecheck, lint, tests, version consistency
+    npm run build                 # frontend -> dist/index.html
 
-## Layout
+On Windows, with Rust stable, the MSVC C++ build tools, Windows SDK, and WebView2 available:
 
-| Path | Purpose |
+    cd apps/desktop/src-tauri
+    cargo test --lib
+    cargo build --release
+
+The Rust/Tauri build embeds the frontend from the repository-root **dist/** directory. Build the frontend before running Cargo commands. Full prerequisites, data locations, and development commands are in **BUILD-WINDOWS.md**.
+
+## Repository map
+
+| Path | Responsibility |
 |---|---|
-| `apps/desktop/src` | React UI (features, components, stores, services) |
-| `apps/desktop/src-tauri` | Rust / Tauri native layer (shell, storage, security, commands) |
-| `apps/mobile` | Placeholder for the future Android/iOS apps |
-| `packages/domain` | Portable cycle logic, estimates, analytics (the only place cycle rules live) |
-| `packages/design-tokens` | Themes, colour maths, palette generation |
-| `packages/*` | `shared-types`, `ui`, `config` (linked as `@mt/*`) |
-| `services/go-worker` | Go JSON-lines worker scaffold (not used by the desktop app yet) |
-| `docs/` | Architecture, privacy, design system, roadmap |
+| **src/** | Tiny root Vite entry shims; the actual UI lives under apps/desktop/src/. |
+| **apps/desktop/src/** | React application: routes, feature screens, components, stores, services, and styles. |
+| **apps/desktop/src-tauri/** | Tauri configuration and Rust native layer: commands, vault storage, security, shell, and Windows platform code. |
+| **apps/mobile/** | Android/iOS placeholder; no mobile application is implemented yet. |
+| **apps/windows-preview/** | Retired Go/Win32 preview retained for historical reference, not the production app. |
+| **packages/domain/** | Portable cycle rules, calculations, records, and analytics. Keep cycle logic here. |
+| **packages/design-tokens/** | Themes, colour maths, palette generation, and design tokens. |
+| **packages/shared-types/**, **packages/config/**, **packages/ui/** | Shared contracts and workspace configuration/UI package boundaries. |
+| **services/go-worker/** | Optional Go JSON-lines worker scaffold; it is not integrated into the desktop app yet. |
+| **database/** | Planned database design and migration notes; SQLCipher is not implemented. |
+| **docs/** | Architecture, privacy, database, UI, development, and roadmap documentation. |
+
+The root Vite configuration is intentional: **src/main.tsx** is a small shim that imports the real desktop entry point. Do not move or delete these shims without updating Vite and Tauri configuration.
+
+## Documentation
+
+- **docs/README.md**: documentation index.
+- **docs/ARCHITECTURE.md**: architecture and dependency boundaries.
+- **docs/PRIVACY_SECURITY.md**: implemented storage protection, limitations, and future work.
+- **BUILD-WINDOWS.md**: Windows build guide.
+- **CHANGELOG.md**: release history.
+- **docs/DEVELOPMENT_ROADMAP.md**: planned work.
+- **docs/DATABASE_DESIGN.md**: database design.
+- **docs/GO_SERVICE_PROTOCOL.md**: Go worker protocol.
+- **CONTRIBUTING.md**: contribution and verification rules.
+
+## Current boundaries and planned work
+
+- Android and iOS are not started.
+- The Go worker is a scaffold and is not required by the desktop application.
+- SQLCipher storage and encrypted backups are not implemented.
+- The NSIS bundle is disabled and the Windows executable is not code-signed.
+
+These boundaries are deliberately stated so the repository does not imply that planned security or platform work has already shipped.
+
+## License
+
+Apache License 2.0. See **LICENSE**.
