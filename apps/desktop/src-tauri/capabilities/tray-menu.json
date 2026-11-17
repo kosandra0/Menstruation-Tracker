@@ -1,0 +1,12 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "tray-menu",
+  "description": "Themed tray menu window: events and app commands only.",
+  "windows": [
+    "tray-menu"
+  ],
+  "permissions": [
+    "core:default",
+    "core:window:allow-hide"
+  ]
+}

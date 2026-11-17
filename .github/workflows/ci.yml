@@ -1,0 +1,27 @@
+# Draft CI — not yet executed. Uses npm because that is the verified package manager (see docs/FOUNDATION.md).
+name: ci
+on: [push, pull_request]
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version-file: services/go-worker/go.mod }
+      - run: go test ./...
+        working-directory: services/go-worker
+  rust:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml

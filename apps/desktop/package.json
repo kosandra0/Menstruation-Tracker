@@ -1,0 +1,12 @@
+{
+  "name": "@mt/desktop",
+  "version": "0.3.1",
+  "private": true,
+  "description": "Tauri 2 desktop shell. The React UI in ./src is built by the repository-root Vite config (see docs/FOUNDATION.md).",
+  "scripts": {
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

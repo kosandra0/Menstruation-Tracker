@@ -1,0 +1,38 @@
+[package]
+name = "menstruation-tracker"
+version = "0.3.1"
+description = "Menstruation Tracker desktop application"
+edition = "2021"
+rust-version = "1.77"
+publish = false
+
+[lib]
+name = "menstruation_tracker_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[features]
+# Embeds the built frontend (dist/) instead of loading the dev server URL. Always on for cargo builds;
+# the tauri CLI turns it off for `tauri dev`.
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+tauri-plugin-autostart = "2"
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62", features = ["Win32_Foundation", "Win32_Security_Cryptography"] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

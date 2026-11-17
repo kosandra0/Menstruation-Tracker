@@ -1,0 +1,5 @@
+# Target workspace definition. NOTE: the foundation environment had no pnpm, so the lockfile is
+# package-lock.json and @mt/* packages are linked with npm `file:` dependencies. See docs/FOUNDATION.md.
+packages:
+  - "apps/*"
+  - "packages/*"
