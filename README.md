@@ -55,7 +55,7 @@ On Windows, with Rust stable, the MSVC C++ build tools, Windows SDK, and WebView
     cargo test --lib
     cargo build --release
 
-The Rust/Tauri build embeds the frontend from the repository-root [`dist/`](dist/) directory. Build the frontend before running Cargo commands. Full prerequisites, data locations, and development commands are in the [Windows build guide](BUILD-WINDOWS.md).
+The Rust/Tauri build embeds the frontend from the repository-root `dist/` directory. Build the frontend before running Cargo commands. Full prerequisites, data locations, and development commands are in the [Windows build guide](BUILD-WINDOWS.md).
 
 ## Repository map
 
